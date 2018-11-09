@@ -278,6 +278,13 @@ _sock_connect(lua_State *L) {
     err = connect(sock->fd, res->ai_addr, res->ai_addrlen);
     freeaddrinfo(res);
 
+#ifdef __APPLE__
+    if (err && errno == EISCONN) {
+        // error = EISCONN so we're good
+        err = 0;
+    }
+#endif
+
     if(err != 0) {
         return _push_result(L, errno);
     } else {
